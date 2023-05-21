@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To-Do App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: rgb(164, 198, 232);
+    }
+    h1 {
+      text-align: center;
+    }
+    #taskInput {
+      width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    #taskList {
+      list-style-type: none;
+      padding: 0;
+    }
+    #taskDescriptionInput{
+        width: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #f4f4f4;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .task input[type="checkbox"] {
+      margin-right: 10px;
+    }
+    .completed {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    .edit-btn,
+    .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: blue;
+      font-weight: bold;
+      text-decoration: underline;
+      margin-left: 10px;
+    }
+    .delete-btn {
+      color: red;
+    }
+    #completedTasksList,
+    #pendingTasksList {
+      margin-top: 20px;
+    }
+    .div-box{
+        border: solid 2px black;
+        margin: 10px;
+        padding: 10px;
+    }
+    .hline{
+        width: 100%;
+        height: 2px;
+        color: black;
+    }
+    .inputs{
+        background-color: rgb(149, 152, 157);
+        padding: 20px;
+    }
+    .todo{
+        color: firebrick;
+        font-family: serif;
+        font-weight: 600;
+    }
+    .border{
+      border: solid 3px rgb(167, 8, 8);
+      
+      
+    }
+  </style>
+</head>
+<body>
+  <div class="border">
+    <div class="container">
+    <h1 class="text-center todo">To-Do App</h1>
+
+    <div class="row">
+      <div class="col-sm-6 offset-sm-3">
+        <div class="form-group">
+          <input type="text" id="taskInput" class="form-control" placeholder="Enter a new task">
+        </div>
+        <div class="form-group">
+          <input type="text" id="taskDescriptionInput" class="form-control" placeholder="Enter a task description">
+        </div>
+        <button class="btn btn-dark btn-block" onclick="addTask()">Add Task</button>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-sm-6 offset-sm-3">
+        <h2>Pending Tasks</h2>
+        <ul id="taskList" class="list-group"></ul>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-sm-6 offset-sm-3">
+        <h2>Completed Tasks</h2>
+        <ul id="completedTasksList" class="list-group"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script>
+    // Task data
+    var tasks = [];
+
+// Function to add a new task
+function addTask() {
+  var taskInput = document.getElementById("taskInput");
+  var taskDescriptionInput = document.getElementById("taskDescriptionInput");
+  var taskText = taskInput.value;
+  var taskDescription = taskDescriptionInput.value;
+  if (taskText.trim() !== "") {
+    var task = {
+      text: taskText,
+      description: taskDescription,
+      completed: false,
+      date: new Date()
+    };
+    tasks.push(task);
+    taskInput.value = "";
+    taskDescriptionInput.value = "";
+    renderTasks();
+  }
+}
+
+// Function to render the tasks
+function renderTasks() {
+  var taskList = document.getElementById("taskList");
+  var completedTasksList = document.getElementById("completedTasksList");
+  taskList.innerHTML = "";
+  completedTasksList.innerHTML = "";
+
+  for (var i = 0; i < tasks.length; i++) {
+    var task = tasks[i];
+    var listItem = document.createElement("li");
+    listItem.className = "task";
+    listItem.innerHTML = `
+      <input type="checkbox" onchange="toggleTaskCompletion(${i})" ${task.completed ? "checked" : ""}>
+      <span class="${task.completed ? "completed" : ""}">${task.text}</span>
+      <span>${task.description}</span>
+      <span class="task-date">${formatDate(task.date)}</span>
+      <button class="edit-btn" onclick="editTask(${i})">Edit</button>
+      <button class="delete-btn" onclick="deleteTask(${i})">Delete</button>
+    `;
+    if (task.completed) {
+      completedTasksList.appendChild(listItem);
+    } else {
+      taskList.appendChild(listItem);
+    }
+  }
+}
+
+// Function to toggle task completion
+function toggleTaskCompletion(index) {
+  tasks[index].completed = !tasks[index].completed;
+  renderTasks();
+}
+
+// Function to edit a task's text and description
+function editTask(index) {
+  var newText = prompt("Enter new task text:", tasks[index].text);
+  var newDescription = prompt("Enter new task description:", tasks[index].description);
+  if (newText !== null && newText.trim() !== "") {
+    tasks[index].text = newText;
+    tasks[index].description = newDescription;
+    renderTasks();
+  }
+}
+
+// Function to delete a task
+function deleteTask(index) {
+  tasks.splice(index, 1);
+  renderTasks();
+}
+
+// Function to format the date as "dd/mm/yyyy hh:mm AM/PM"
+function formatDate(date) {
+  var options = { 
+    day: '2-digit', 
+    month: '2-digit', 
+    year: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  };
+  return date.toLocaleString('en-US', options);
+}
+</script>
+</body>
+</html>
